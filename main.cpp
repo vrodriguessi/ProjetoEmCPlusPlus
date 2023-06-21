@@ -158,7 +158,7 @@ void procuranome (componente* entrada, int t){
     }
   }
 
-bool buscaadicionarComponente(componente* entrada, int &t,string codigoadicionar, int &cont) {
+bool buscaadicionarComponente(componente* entrada, int t,string codigoadicionar, int &cont) {
 //verifica a existência de um determinado componente pelo seu código 
 
     bool achou = false;
@@ -180,7 +180,7 @@ bool buscaadicionarComponente(componente* entrada, int &t,string codigoadicionar
   return achou;
 }
 
-void adicionarComponente(componente* entrada, int &t, int &capaz) {
+void adicionarComponente(componente* entrada, int t, int capaz) {
     // Procedimento para adicionar novo componente curricular no arquivo
 
     string codigoadicionar;
@@ -193,9 +193,7 @@ void adicionarComponente(componente* entrada, int &t, int &capaz) {
     if (buscaadicionarComponente(entrada, t, codigoadicionar, cont) == false) {
         if (t == capaz) {
             componente* novoComponente = new componente[capaz + 8];
-            for (int i = 0; i < t; i++) {
-                novoComponente[i] = entrada[i];
-            }
+            copy(entrada, entrada+capaz, novoComponente);
             delete[] entrada;
             capaz += 8;
             entrada = novoComponente;
@@ -486,7 +484,7 @@ void chamada(int operacao){
   {
     tamanho++;
   }
-  int capacidade=tamanho+tamanho;
+  int capacidade=tamanho+1;
   matriz_csv.clear();            // Limpa o erro do arquivo
   matriz_csv.seekg(0, ios::beg); // Volta para o início do arquivo
 
