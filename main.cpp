@@ -1,3 +1,5 @@
+// Matriz Curricular - Manipula matriz curricular presente em um arquivo binário
+// Desenvolvido pelo Grupo 23: Guilherme Alexandre Cunha Silva, Lilian Carla de Freitas, Verônica Rodrigues da Silva França
 #include <iostream>
 #include <fstream>
 #include <string>
