@@ -34,7 +34,7 @@ void vizualizarTudo(componente *entrada, int tam){
   }
 }
 
-void mostrarperiodo(componente *entrada, int tamanho){
+void mostrarperiodo(componente *entrada, int t){
   // procedimento para listar os componentes curriculares de um período informado pelo usuário
   int periodo = -1;
   bool correto = false;
@@ -53,7 +53,7 @@ void mostrarperiodo(componente *entrada, int tamanho){
     else
     {
       correto = true;
-      for (int a = 0; a < tamanho; a++)
+      for (int a = 0; a < t; a++)
       {
         if (entrada[a].periodo == periodo) // na última posição do vetor temos o código espaço em branco
         {
@@ -76,7 +76,7 @@ void mostrarperiodo(componente *entrada, int tamanho){
   }
 }
 
-void buscaDocodigo(componente *entrada, int tamanho){
+void buscaDocodigo(componente *entrada, int t){
   // procedimento de busca pelo código do componente curricular
   cout << "Digite o código do curso desejado: " << endl;
   int posicao;
@@ -85,7 +85,7 @@ void buscaDocodigo(componente *entrada, int tamanho){
   cin.ignore();
   getline(cin, codigoProcurado);
   int index=0;
-  while((index<tamanho) and (ponteiroPosicao==NULL)){
+  while((index<t) and (ponteiroPosicao==NULL)){
     if(entrada[index].codigo == codigoProcurado){
       posicao=index;
       ponteiroPosicao= &posicao;
@@ -158,14 +158,14 @@ void procuranome (componente* entrada, int t){
     }
   }
 
-bool buscaadicionarComponente(componente* entrada, int tamanho,string codigoadicionar, int contador) {
+bool buscaadicionarComponente(componente* entrada, int t,string codigoadicionar, int &cont) {
 //verifica a existência de um determinado componente pelo seu código 
 
     bool achou = false;
    
-    while (contador < tamanho and !achou)
+    while (cont < t and !achou)
     {
-      if (codigoadicionar == entrada[contador].codigo)
+      if (codigoadicionar == entrada[cont].codigo)
       {
         achou = true;
         cout<<endl<<"==========================================================================="<< endl;
@@ -174,13 +174,13 @@ bool buscaadicionarComponente(componente* entrada, int tamanho,string codigoadic
       }
       else
       {
-        contador++;
+        cont++;
       }
     }
   return achou;
 }
 
-void adicionarComponente(componente* entrada, int tamanho, int capacidade) {
+void adicionarComponente(componente* entrada, int t, int capaz) {
     // Procedimento para adicionar novo componente curricular no arquivo
 
     string codigoadicionar;
@@ -188,14 +188,14 @@ void adicionarComponente(componente* entrada, int tamanho, int capacidade) {
     cin.ignore();
     cin >> codigoadicionar;
     cin.ignore();
-    int contador = 0;
+    int cont = 0;
 
-    if (buscaadicionarComponente(entrada, tamanho, codigoadicionar, contador) == false) {
-        if (tamanho == capacidade) {
-            componente* novoComponente = new componente[capacidade + 1];
-            copy(entrada, entrada+capacidade, novoComponente);
+    if (buscaadicionarComponente(entrada, t, codigoadicionar, cont) == false) {
+        if (t == capaz) {
+            componente* novoComponente = new componente[capaz + 8];
+            copy(entrada, entrada+capaz, novoComponente);
             delete[] entrada;
-            capacidade += 1;
+            capaz += 8;
             entrada = novoComponente;
         }
 
@@ -224,8 +224,8 @@ void adicionarComponente(componente* entrada, int tamanho, int capacidade) {
           cin.ignore();
 
         // Adicionar o novo componente ao array
-        entrada[tamanho] = novo;
-        tamanho++;
+        entrada[t] = novo;
+        t++;
 
         ofstream arquivo("matriz.csv");
         if (!arquivo.is_open()){
@@ -234,7 +234,7 @@ void adicionarComponente(componente* entrada, int tamanho, int capacidade) {
         }
         else
         {
-        for (int i = 0; i < tamanho; i++){
+        for (int i = 0; i < t; i++){
         arquivo << entrada[i].periodo << ",";
         arquivo << entrada[i].codigo << ",";
         arquivo << entrada[i].nome << ",";
@@ -253,7 +253,7 @@ void adicionarComponente(componente* entrada, int tamanho, int capacidade) {
 }
 }
 
-void editar(componente* entrada, int tamanho){
+void editar(componente* entrada, int t){
 //procedimento que permite a edição de dados a partir do código do componente currucular que deve ser alterado  
 
     string editado;
@@ -263,7 +263,7 @@ void editar(componente* entrada, int tamanho){
     getline(cin, editado);
 
     int contar = 0;
-    if (buscaadicionarComponente(entrada, tamanho, editado, contar) == true)
+    if (buscaadicionarComponente(entrada, t, editado, contar) == true)
     {   
       int edicao;
       
@@ -349,7 +349,7 @@ void editar(componente* entrada, int tamanho){
     }
     else
     {
-      for (int i = 0; i < tamanho; i++){
+      for (int i = 0; i < t; i++){
         arquivo << entrada[i].periodo << ",";
         arquivo << entrada[i].codigo << ",";
         arquivo << entrada[i].nome << ",";
@@ -377,23 +377,23 @@ void editar(componente* entrada, int tamanho){
     }
 }
 
-void Remove_componente(ifstream &arquivo, componente vetor[], int tamanho) {
+void Remove_componente(ifstream &arquivo, componente vetor[], int &t) {
 	//procedimento para remover um componente da matriz curricular
-    int contador = 0, op_menu = 3;
+    int cont = 0, op_menu = 3;
     string excluir;
     cout<<"Informe o código do componente curricular que deverá ser removido: " <<endl;
     cin.ignore();
     getline(cin, excluir);
     bool achou = false, repetir = true;
-    while (contador < tamanho and !achou)
+    while (cont < t and !achou)
     {
-      if (excluir == vetor[contador].codigo)
+      if (excluir == vetor[cont].codigo)
       {
         achou = true;
       }
       else
       {
-        contador++;
+        cont++;
       }
     }     
   if (achou == false) {
@@ -401,14 +401,14 @@ void Remove_componente(ifstream &arquivo, componente vetor[], int tamanho) {
   }  
   else {
     cout<<"Deseja realmente excluir o componente curricular: "<<endl;
-    cout<<"Período: "<<vetor[contador].periodo<<endl
-        <<"Código: "<<vetor[contador].codigo<<endl
-        <<"Nome: "<<vetor[contador].nome<<endl
-        <<"Tipo: "<<vetor[contador].tipo<<endl
-        <<"CH Teórica: "<<vetor[contador].cargaTeorica<<endl
-        <<"CH Prática: "<<vetor[contador].cargaPratica<<endl
-        <<"CH Extensão: "<<vetor[contador].cargaExtensao<<endl
-        <<"CH Relógio: "<<vetor[contador].cargaRelogio;
+    cout<<"Período: "<<vetor[cont].periodo<<endl
+        <<"Código: "<<vetor[cont].codigo<<endl
+        <<"Nome: "<<vetor[cont].nome<<endl
+        <<"Tipo: "<<vetor[cont].tipo<<endl
+        <<"CH Teórica: "<<vetor[cont].cargaTeorica<<endl
+        <<"CH Prática: "<<vetor[cont].cargaPratica<<endl
+        <<"CH Extensão: "<<vetor[cont].cargaExtensao<<endl
+        <<"CH Relógio: "<<vetor[cont].cargaRelogio;
         cout<<endl<<"==========================================================================="<< endl;
       
         do
@@ -418,13 +418,13 @@ void Remove_componente(ifstream &arquivo, componente vetor[], int tamanho) {
             if (op_menu == 1)
             {
               repetir = false;
-              while (contador < tamanho-1)
+              while (cont < t-1)
               {
-                vetor[contador] = vetor[contador+1];
-                contador++;
+                vetor[cont] = vetor[cont+1];
+                cont++;
               }
-              vetor[tamanho-1].codigo = " ";
-              tamanho--;
+              vetor[t-1].codigo = " ";
+              t--;
                     
               ofstream arquivo("matriz.csv");
               
@@ -434,7 +434,7 @@ void Remove_componente(ifstream &arquivo, componente vetor[], int tamanho) {
               }
               else
               {
-                for (int i = 0; i < tamanho; i++){
+                for (int i = 0; i < t; i++){
                   if (vetor[i].codigo != " ")
                   {
                     arquivo << vetor[i].periodo << ",";
@@ -556,5 +556,4 @@ int main(){
     cin >> operacao;
     chamada(operacao);
   } while (operacao != 0);
-  return 0;
 }
