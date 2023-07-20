@@ -2,13 +2,15 @@
 // Desenvolvido pelo Grupo 23: Guilherme Alexandre Cunha Silva, Lilian Carla de Freitas, Verônica Rodrigues da Silva França
 #include <iostream>
 #include <fstream>
-#include <string>
+#include <cstring>
 using namespace std;
-
+const int MAXNOME = 90;
+const int MAXCODIGO = 8;
+//Mudança de string para vetor de char
 struct componente{
   int periodo;
-  string codigo;
-  string nome;
+  char codigo[MAXCODIGO];
+  char nome [MAXNOME];
   char tipo;
   int cargaTeorica;
   int cargaPratica;
@@ -185,9 +187,8 @@ bool buscaadicionarComponente(componente* entrada, int t,string codigoadicionar,
 void adicionarComponente(componente* entrada, int t, int capaz) {
     // Procedimento para adicionar novo componente curricular no arquivo
 
-    string codigoadicionar;
+    char codigoadicionar[MAXCODIGO];
     cout << "Informe o código do componente que você deseja adicionar: " << endl;
-    cin.ignore();
     cin >> codigoadicionar;
     cin.ignore();
     int cont = 0;
@@ -203,9 +204,12 @@ void adicionarComponente(componente* entrada, int t, int capaz) {
 
         // Criar uma nova variável para armazenar o componente adicionado
         componente novo;
-          novo.codigo=codigoadicionar;
+          strcpy(novo.codigo, codigoadicionar);
           cout << "Digite o nome do componente curricular: " << endl;
-          getline(cin, novo.nome);
+          string nome;
+          getline(cin, nome);
+          strcpy(novo.nome, nome.c_str());
+          novo.nome[nome.size()] = '\0';
           cout << "Tipo: ";
           cin >> novo.tipo;
           cin.ignore();
@@ -310,14 +314,14 @@ void editar(componente* entrada, int t){
                   cout<<"Digite o novo codigo e aperte Enter duas vezes: "<<endl;
                   getline(cin, novoCodigo);
                   cin.ignore();
-                  entrada[contar].codigo=novoCodigo;
+                  strcpy(entrada[contar].codigo, novoCodigo.c_str());
                   break;
 
           case 3:
                   cout<<"Digite o novo nome e aperte Enter duas vezes:  "<<endl;
                   getline(cin, nomeNovo);
                   cin.ignore();
-                  entrada[contar].nome=nomeNovo;
+                  strcpy(entrada[contar].nome, nomeNovo.c_str());
                   break;
           case 4:
                   cout<<"Digite o novo tipo: "<<endl;
@@ -382,22 +386,18 @@ void editar(componente* entrada, int t){
 void Remove_componente(ifstream &arquivo, componente vetor[], int &t) {
 	//procedimento para remover um componente da matriz curricular
     int cont = 0, op_menu = 3;
-    string excluir;
+    char excluir[MAXCODIGO];
     cout<<"Informe o código do componente curricular que deverá ser removido: " <<endl;
-    cin.ignore();
-    getline(cin, excluir);
+    cin>>excluir;
     bool achou = false, repetir = true;
-    while (cont < t and !achou)
-    {
-      if (excluir == vetor[cont].codigo)
-      {
+    while (cont < t and !achou){
+    if (strcmp(excluir, vetor[cont].codigo) == 0){
         achou = true;
       }
-      else
-      {
+    else{
         cont++;
       }
-    }     
+    }   
   if (achou == false) {
     cout<<"Não foi possível encontrar o componente curricular desejado"<<endl;
   }  
@@ -425,7 +425,7 @@ void Remove_componente(ifstream &arquivo, componente vetor[], int &t) {
                 vetor[cont] = vetor[cont+1];
                 cont++;
               }
-              vetor[t-1].codigo = " ";
+              strcpy(vetor[t-1].codigo, " ");
               t--;
                     
               ofstream arquivo("matriz.csv");
@@ -496,8 +496,12 @@ void chamada(int operacao){
   {
     matriz_csv >> componenteMatriz[i].periodo;
     matriz_csv.ignore();
-    getline(matriz_csv, componenteMatriz[i].codigo, ',');
-    getline(matriz_csv, componenteMatriz[i].nome, ',');
+    string codigo;
+    getline(matriz_csv, codigo, ',');
+    strcpy(componenteMatriz[i].codigo, codigo.c_str());
+    string nome;
+    getline(matriz_csv, nome, ',');
+    strcpy(componenteMatriz[i].nome, nome.c_str());
     matriz_csv >> componenteMatriz[i].tipo;
     matriz_csv.ignore();
     matriz_csv >> componenteMatriz[i].cargaTeorica;
