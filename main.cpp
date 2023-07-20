@@ -6,7 +6,7 @@
 using namespace std;
 const int MAXNOME = 90;
 const int MAXCODIGO = 8;
-
+//Mudança de string para vetor de char
 struct componente{
   int periodo;
   char codigo[MAXCODIGO];
