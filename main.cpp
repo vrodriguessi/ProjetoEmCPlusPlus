@@ -6,7 +6,7 @@
 using namespace std;
 const int MAXNOME = 90;
 const int MAXCODIGO = 8;
-//Mudança de string para vetor de char
+
 struct componente{
   int periodo;
   char codigo[MAXCODIGO];
@@ -17,6 +17,82 @@ struct componente{
   int cargaExtensao;
   float cargaRelogio;
 };
+
+int particionaCodigo(componente componentesAnalisados[], int p, int r){
+  string pivo = componentesAnalisados[r].codigo;
+  int j = p;
+  int k;
+  for(k = p; k < r; k++){
+    if(componentesAnalisados[k].codigo <= pivo){
+      swap(componentesAnalisados[j], componentesAnalisados[k]);
+      j++;
+    }
+  }
+  swap(componentesAnalisados[j], componentesAnalisados[r]);
+  return j;
+}
+
+void quicksortCodigo(componente componentesEmAnalise[], int posInicial, int fim){
+  int posNovoPivo;
+  if(posInicial < fim){
+    posNovoPivo = particionaCodigo(componentesEmAnalise, posInicial, fim);
+    quicksortCodigo(componentesEmAnalise, posInicial, posNovoPivo - 1);
+    quicksortCodigo(componentesEmAnalise, posNovoPivo + 1, fim);
+  }
+}
+
+int particionaNome(componente componentesAnalisados[], int p, int r){
+  string pivo = componentesAnalisados[r].nome;
+  int j = p;
+  int k;
+  for(k = p; k < r; k++){
+    if(componentesAnalisados[k].nome <= pivo){
+      swap(componentesAnalisados[j], componentesAnalisados[k]);
+      j++;
+    }
+  }
+  swap(componentesAnalisados[j], componentesAnalisados[r]);
+  return j;
+}
+
+void quicksortNome(componente componentesEmAnalise[], int posInicial, int fim){
+  int posNovoPivo;
+  if(posInicial < fim){
+    posNovoPivo = particionaNome(componentesEmAnalise, posInicial, fim);
+    quicksortNome(componentesEmAnalise, posInicial, posNovoPivo - 1);
+    quicksortNome(componentesEmAnalise, posNovoPivo + 1, fim);
+  }
+}
+
+int buscaBinariaCodigo(componente componentesOrdenados[], int inicio, int fim, string buscado){
+  int meio = (inicio + fim)/2;
+  if(componentesOrdenados[meio].codigo == buscado){
+    return meio;
+  }
+  else if(inicio < fim){
+    if(componentesOrdenados[meio].codigo < buscado){
+      return buscaBinariaCodigo(componentesOrdenados, meio + 1, fim, buscado);}
+      else {
+        return buscaBinariaCodigo(componentesOrdenados, inicio, fim -1, buscado);
+    }
+  }
+  else return -1;
+}
+
+int buscaBinariaNome(componente componentesOrdenados[], int inicio, int fim, string buscado){
+  int meio = (inicio + fim)/2;
+  if(componentesOrdenados[meio].nome == buscado){
+    return meio;
+  }
+  else if(inicio < fim){
+    if(componentesOrdenados[meio].nome < buscado){
+      return buscaBinariaNome(componentesOrdenados, meio + 1, fim, buscado);}
+      else {
+        return buscaBinariaNome(componentesOrdenados, inicio, fim -1, buscado);
+    }
+  }
+  else return -1;
+}
 
 void vizualizarTudo(componente *entrada, int tam){
   int indice = 0;
@@ -85,30 +161,23 @@ void buscaDocodigo(componente *entrada, int t){
   cout << "Digite o código do curso desejado: " << endl;
   int posicao;
   string codigoProcurado;
-  int* ponteiroPosicao = NULL;
   cin.ignore();
   getline(cin, codigoProcurado);
-  int index=0;
-  while((index<t) and (ponteiroPosicao==NULL)){
-    if(entrada[index].codigo == codigoProcurado){
-      posicao=index;
-      ponteiroPosicao= &posicao;
-    }
-    else
-    index++;
-  }
-  if (ponteiroPosicao != NULL)
+  quicksortCodigo(entrada, 0, t);
+  posicao = buscaBinariaCodigo(entrada, 0, t, codigoProcurado);
+ 
+  if (posicao != -1)
   {
     cout << endl
          << "===========================================================================" << endl;
-    cout << "Periodo: " << entrada[index].periodo << endl;
-    cout << "Código: " << entrada[index].codigo << endl;
-    cout << "Nome do curso: " << entrada[index].nome << endl;
-    cout << "Tipo: " << entrada[index].tipo << endl;
-    cout << "Carga teórica: " << entrada[index].cargaTeorica << endl;
-    cout << "Carga prática: " << entrada[index].cargaPratica << endl;
-    cout << "Carga extensão: " << entrada[index].cargaExtensao << endl;
-    cout << "Carga relógio: " << entrada[index].cargaRelogio << endl;
+    cout << "Periodo: " << entrada[posicao].periodo << endl;
+    cout << "Código: " << entrada[posicao].codigo << endl;
+    cout << "Nome do curso: " << entrada[posicao].nome << endl;
+    cout << "Tipo: " << entrada[posicao].tipo << endl;
+    cout << "Carga teórica: " << entrada[posicao].cargaTeorica << endl;
+    cout << "Carga prática: " << entrada[posicao].cargaPratica << endl;
+    cout << "Carga extensão: " << entrada[posicao].cargaExtensao << endl;
+    cout << "Carga relógio: " << entrada[posicao].cargaRelogio << endl;
     cout << endl
          << "===========================================================================" << endl;
   }
@@ -128,31 +197,20 @@ void procuranome (componente* entrada, int t){
     getline(cin, nomeProcurado);
     //esta parte ainda precisa ser tratata em relação a letras maiúsculas e minúsculas, vígulas, acentos e caracteres especiais
 
-    int contador = 0;
-    bool achou = false;
-
-    while (contador < t and !achou)
-    {
-      if (nomeProcurado == entrada[contador].nome)
-      {
-        achou = true;
-      }
-      else
-      {
-        contador++;
-      }
-    }
-    if (achou)
+    quicksortNome(entrada, 0, t);
+    int posicao = buscaBinariaNome(entrada, 0, t, nomeProcurado);
+ 
+    if (posicao != -1)
     {
       cout<<endl<<"==========================================================================="<< endl;
-      cout << "Periodo: " << entrada[contador].periodo << endl;
-      cout << "Código: " << entrada[contador].codigo << endl;
-      cout << "Nome do componente: " << entrada[contador].nome << endl;
-      cout << "Tipo: " << entrada[contador].tipo << endl;
-      cout << "Carga teórica: " << entrada[contador].cargaTeorica << endl;
-      cout << "Carga prática: " << entrada[contador].cargaPratica << endl;
-      cout << "Carga extensão: " << entrada[contador].cargaExtensao << endl;
-      cout << "Carga relógio: " << entrada[contador].cargaRelogio << endl;
+      cout << "Periodo: " << entrada[posicao].periodo << endl;
+      cout << "Código: " << entrada[posicao].codigo << endl;
+      cout << "Nome do componente: " << entrada[posicao].nome << endl;
+      cout << "Tipo: " << entrada[posicao].tipo << endl;
+      cout << "Carga teórica: " << entrada[posicao].cargaTeorica << endl;
+      cout << "Carga prática: " << entrada[posicao].cargaPratica << endl;
+      cout << "Carga extensão: " << entrada[posicao].cargaExtensao << endl;
+      cout << "Carga relógio: " << entrada[posicao].cargaRelogio << endl;
       cout<<endl<<"==========================================================================="<< endl;
     }
     else
@@ -204,59 +262,56 @@ void adicionarComponente(componente* entrada, int t, int capaz) {
 
         // Criar uma nova variável para armazenar o componente adicionado
         componente novo;
-          strcpy(novo.codigo, codigoadicionar);
-          cout << "Digite o nome do componente curricular: " << endl;
-          string nome;
-          getline(cin, nome);
-          strcpy(novo.nome, nome.c_str());
-          novo.nome[nome.size()] = '\0';
-          cout << "Tipo: ";
-          cin >> novo.tipo;
-          cin.ignore();
-          cout << "Período: ";
-          cin >> novo.periodo;
-          cin.ignore();
-          cout << "Carga teórica: ";
-          cin >> novo.cargaTeorica;
-          cin.ignore();
-          cout << "Carga prática: ";
-          cin >> novo.cargaPratica;
-          cin.ignore();
-          cout << "Carga extensão: ";
-          cin >> novo.cargaExtensao;
-          cin.ignore();
-          cout << "Carga relógio: ";
-          cin >> novo.cargaRelogio;
-          cin.ignore();
+        strcpy(novo.codigo, codigoadicionar);
+        cout << "Digite o nome do componente curricular: " << endl;
+        string nome;
+        getline(cin, nome);
+        strcpy(novo.nome, nome.c_str());
+        novo.nome[nome.size()] = '\0';
+        cout << "Tipo: ";
+        cin >> novo.tipo;
+        cin.ignore();
+        cout << "Período: ";
+        cin >> novo.periodo;
+        cin.ignore();
+        cout << "Carga teórica: ";
+        cin >> novo.cargaTeorica;
+        cin.ignore();
+        cout << "Carga prática: ";
+        cin >> novo.cargaPratica;
+        cin.ignore();
+        cout << "Carga extensão: ";
+        cin >> novo.cargaExtensao;
+        cin.ignore();
+        cout << "Carga relógio: ";
+        cin >> novo.cargaRelogio;
+        cin.ignore();
 
         // Adicionar o novo componente ao array
         entrada[t] = novo;
         t++;
 
-        ofstream arquivo("matriz.csv");
-        if (!arquivo.is_open()){
-        cout << "Erro ao abrir o arquivo." << endl;
-        return;
+        ofstream arquivo("matriz.csv", ios::app);
+        if (!arquivo.is_open()) {
+            cout << "Erro ao abrir o arquivo." << endl;
+            return;
         }
-        else
-        {
-        for (int i = 0; i < t; i++){
-        arquivo << entrada[i].periodo << ",";
-        arquivo << entrada[i].codigo << ",";
-        arquivo << entrada[i].nome << ",";
-        arquivo << entrada[i].tipo << ",";
-        arquivo << entrada[i].cargaTeorica << ",";
-        arquivo << entrada[i].cargaPratica << ",";
-        arquivo << entrada[i].cargaExtensao << ",";
-        arquivo << entrada[i].cargaRelogio << endl;
-      }
-    
-      arquivo.close();
-        cout << endl << "===========================================================================" << endl;
-        cout << "Componente adicionado com sucesso." << endl;
-        cout << endl << "===========================================================================" << endl;
+        else {
+            arquivo << entrada[t-1].periodo << ",";
+            arquivo << entrada[t-1].codigo << ",";
+            arquivo << entrada[t-1].nome << ",";
+            arquivo << entrada[t-1].tipo << ",";
+            arquivo << entrada[t-1].cargaTeorica << ",";
+            arquivo << entrada[t-1].cargaPratica << ",";
+            arquivo << entrada[t-1].cargaExtensao << ",";
+            arquivo << entrada[t-1].cargaRelogio << endl;
+
+            arquivo.close();
+            cout << endl << "===========================================================================" << endl;
+            cout << "Componente adicionado com sucesso." << endl;
+            cout << endl << "===========================================================================" << endl;
+        }
     }
-}
 }
 
 void editar(componente* entrada, int t){
@@ -471,6 +526,17 @@ void Remove_componente(ifstream &arquivo, componente vetor[], int &t) {
   }
 }
 
+void transformarEmBinario(componente*& arquivoCSV, int& tamanho){
+  ofstream arquivoBinario("matriz.bin", std::ios::binary | std::ios::out);
+  if(!arquivoBinario){
+    cout<<"Erro ao carregar o arquivo binário!"<<endl;
+  }
+  else{
+    arquivoBinario.write(reinterpret_cast<const char*>(arquivoCSV), tamanho * sizeof(componente));
+    arquivoBinario.close();
+  }
+}
+
 void chamada(int operacao){
   ifstream matriz_csv("matriz.csv");
   if (!matriz_csv)
@@ -513,6 +579,8 @@ void chamada(int operacao){
     matriz_csv >> componenteMatriz[i].cargaRelogio;
     matriz_csv.ignore();
   }
+
+  transformarEmBinario(componenteMatriz, tamanho);
 
   matriz_csv.close();
 
