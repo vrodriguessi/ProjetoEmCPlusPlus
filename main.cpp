@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <cctype>
 using namespace std;
 const int MAXNOME = 90;
 const int MAXCODIGO = 8;
@@ -242,7 +243,7 @@ bool buscaadicionarComponente(componente* entrada, int t,string codigoadicionar,
   return achou;
 }
 
-void adicionarComponente(componente* entrada, int t, int capaz) {
+void adicionarComponente(componente* entrada, int &t, int capaz) {
     // Procedimento para adicionar novo componente curricular no arquivo
 
     char codigoadicionar[MAXCODIGO];
@@ -250,6 +251,10 @@ void adicionarComponente(componente* entrada, int t, int capaz) {
     cin >> codigoadicionar;
     cin.ignore();
     int cont = 0;
+
+     for (size_t i = 0; i < strlen(codigoadicionar); i++) {
+        codigoadicionar[i] = toupper(codigoadicionar[i]);
+    }
 
     if (buscaadicionarComponente(entrada, t, codigoadicionar, cont) == false) {
         if (t == capaz) {
@@ -268,8 +273,10 @@ void adicionarComponente(componente* entrada, int t, int capaz) {
         getline(cin, nome);
         strcpy(novo.nome, nome.c_str());
         novo.nome[nome.size()] = '\0';
+        cout << "O tipo deve ser 'E' para eletivas, 'O' para obrigatórias e 'A' para optativas"<<endl;
         cout << "Tipo: ";
         cin >> novo.tipo;
+        novo.tipo = toupper(novo.tipo);
         cin.ignore();
         cout << "Período: ";
         cin >> novo.periodo;
@@ -289,7 +296,6 @@ void adicionarComponente(componente* entrada, int t, int capaz) {
 
         // Adicionar o novo componente ao array
         entrada[t] = novo;
-        t++;
 
         ofstream arquivo("matriz.csv", ios::app);
         if (!arquivo.is_open()) {
@@ -297,26 +303,35 @@ void adicionarComponente(componente* entrada, int t, int capaz) {
             return;
         }
         else {
-            arquivo << entrada[t-1].periodo << ",";
-            arquivo << entrada[t-1].codigo << ",";
-            arquivo << entrada[t-1].nome << ",";
-            arquivo << entrada[t-1].tipo << ",";
-            arquivo << entrada[t-1].cargaTeorica << ",";
-            arquivo << entrada[t-1].cargaPratica << ",";
-            arquivo << entrada[t-1].cargaExtensao << ",";
-            arquivo << entrada[t-1].cargaRelogio << endl;
+            arquivo << entrada[t].periodo << ",";
+            arquivo << entrada[t].codigo << ",";
+            arquivo << entrada[t].nome << ",";
+            arquivo << entrada[t].tipo << ",";
+            arquivo << entrada[t].cargaTeorica << ",";
+            arquivo << entrada[t].cargaPratica << ",";
+            arquivo << entrada[t].cargaExtensao << ",";
+            arquivo << entrada[t].cargaRelogio << endl;
 
             arquivo.close();
             cout << endl << "===========================================================================" << endl;
             cout << "Componente adicionado com sucesso." << endl;
             cout << endl << "===========================================================================" << endl;
         }
+				ofstream arquivoBinario("matriz.bin", ios::binary | ios::app);
+        if (!arquivoBinario.is_open()) {
+            cout << "Erro ao abrir o arquivo binário." << endl;
+            return;
+        }
+        else {
+            arquivoBinario.write(reinterpret_cast<const char*>(&entrada[t]), sizeof(componente));
+            arquivoBinario.close();
+        }
+        t++;
     }
 }
 
 void editar(componente* entrada, int t){
 //procedimento que permite a edição de dados a partir do código do componente currucular que deve ser alterado  
-
     string editado;
     bool repete = true;
     cout<<"Digite o código do componente a ser editado: "<<endl;
@@ -327,7 +342,6 @@ void editar(componente* entrada, int t){
     if (buscaadicionarComponente(entrada, t, editado, contar) == true)
     {   
       int edicao;
-      
       
       while (repete == true) {
          cout<<endl<<"==========================================================================="<< endl;
@@ -352,7 +366,6 @@ void editar(componente* entrada, int t){
         }
         else
         {
-          int periodoNovo;
           string novoCodigo;
           string nomeNovo;
     
@@ -360,15 +373,17 @@ void editar(componente* entrada, int t){
           {
           case 1:
                   cout<<"Digite o novo periodo: "<<endl;
-                  cin>>periodoNovo;
+                  cin>>entrada[contar].periodo;
                   cin.ignore();
-                  entrada[contar].periodo=periodoNovo;
           break;
         
           case 2:
                   cout<<"Digite o novo codigo e aperte Enter duas vezes: "<<endl;
                   getline(cin, novoCodigo);
                   cin.ignore();
+                  for (size_t i = 0; i < novoCodigo.length(); i++) {
+                  novoCodigo[i] = toupper(novoCodigo[i]);
+                  }
                   strcpy(entrada[contar].codigo, novoCodigo.c_str());
                   break;
 
@@ -381,6 +396,7 @@ void editar(componente* entrada, int t){
           case 4:
                   cout<<"Digite o novo tipo: "<<endl;
                   cin>>entrada[contar].tipo;
+                  entrada[contar].tipo = toupper(entrada[contar].tipo);
                   break;
           case 5:
                   cout<<"Digite a nova carga teorica: "<<endl;
@@ -403,14 +419,14 @@ void editar(componente* entrada, int t){
         }
 
     //escrevendo os dados alterados no arquivo  
-    ofstream arquivo("matriz.csv");
+    ofstream arquivo("matriz.csv", ios::in | ios::out);
     if (!arquivo.is_open()){
         cout << "Erro ao abrir o arquivo." << endl;
         return;
     }
     else
     {
-      for (int i = 0; i < t; i++){
+      for(int i = 0; i < t; i++){
         arquivo << entrada[i].periodo << ",";
         arquivo << entrada[i].codigo << ",";
         arquivo << entrada[i].nome << ",";
@@ -420,12 +436,20 @@ void editar(componente* entrada, int t){
         arquivo << entrada[i].cargaExtensao << ",";
         arquivo << entrada[i].cargaRelogio << endl;
       }
-    
       arquivo.close();
       cout<<endl<<"==========================================================================="<< endl;  
       cout << "Edição realizada com sucesso." << endl;
       cout<<endl<<"==========================================================================="<< endl;
-    
+      
+      ofstream arquivoBinario("matriz.bin", ios::binary | ios::in | ios::out);
+        if (!arquivoBinario.is_open()) {
+            cout << "Erro ao abrir o arquivo binário." << endl;
+            return;
+        }
+        else {
+            arquivoBinario.write(reinterpret_cast<const char*>(&entrada[contar]), sizeof(componente));
+            arquivoBinario.close();
+        }
     }
     }
     }
@@ -440,7 +464,7 @@ void editar(componente* entrada, int t){
 
 void Remove_componente(ifstream &arquivo, componente vetor[], int &t) {
 	//procedimento para remover um componente da matriz curricular
-    int cont = 0, op_menu = 3;
+    int cont = 0, op_menu;
     char excluir[MAXCODIGO];
     cout<<"Informe o código do componente curricular que deverá ser removido: " <<endl;
     cin>>excluir;
@@ -452,7 +476,7 @@ void Remove_componente(ifstream &arquivo, componente vetor[], int &t) {
     else{
         cont++;
       }
-    }   
+    }
   if (achou == false) {
     cout<<"Não foi possível encontrar o componente curricular desejado"<<endl;
   }  
@@ -537,6 +561,35 @@ void transformarEmBinario(componente*& arquivoCSV, int& tamanho){
   }
 }
 
+void exportarArquivo(const string& nomeBinario, const string& nomeExportar) {
+    ifstream arquivoEmBinario(nomeBinario, ios::binary);
+    if (!arquivoEmBinario) {
+        cout << "Erro ao abrir um arquivo binário." << endl;
+    } else {
+        ofstream exportacaoArquivo(nomeExportar);
+        if (!exportacaoArquivo) {
+            cout << "Erro ao abrir o arquivo de exportação." << endl;
+        } else {
+            componente informacaoImportar;
+            while (arquivoEmBinario.read(reinterpret_cast<char*>(&informacaoImportar), sizeof(componente))) {
+                exportacaoArquivo << informacaoImportar.periodo << ","
+                                  << informacaoImportar.codigo << ","
+                                  << informacaoImportar.nome << ","
+                                  << informacaoImportar.tipo << ","
+                                  << informacaoImportar.cargaTeorica << ","
+                                  << informacaoImportar.cargaPratica << ","
+                                  << informacaoImportar.cargaExtensao << ","
+                                  << informacaoImportar.cargaRelogio << "\n";
+            }
+        }
+        arquivoEmBinario.close();
+        exportacaoArquivo.close();
+        cout<<"================================================================================="<<endl;
+        cout<<" Arquivo exportado com sucesso!"<<endl;
+        cout<<"================================================================================="<<endl;
+    }
+}
+
 void chamada(int operacao){
   ifstream matriz_csv("matriz.csv");
   if (!matriz_csv)
@@ -607,6 +660,9 @@ void chamada(int operacao){
   case 7:
    Remove_componente(matriz_csv, componenteMatriz, tamanho);
    break;
+   case 8:
+   exportarArquivo("matriz.bin", "arquivoExportadoCSV");
+   break;
   default:
     break;
   }
@@ -626,6 +682,7 @@ int main(){
     cout << "5 - Adicionar um novo componente à matriz" << endl;
     cout << "6 - Editar um componente da matriz" << endl;
     cout << "7 - Excluir um componente da matriz" << endl;
+    cout << "8 - Exportar a matriz curricular"<<endl;
     cout << "0 - Sair" << endl;
     cin >> operacao;
     chamada(operacao);
